@@ -1,0 +1,105 @@
+# Results map — every paper number → its source
+
+Each row: the quantity in the paper, the notebook + cell that computes it, the output file it is
+written to, and the value observed in the committed notebook outputs. **If the paper reports a
+figure not listed here, add a row.**
+
+Notebook short names:
+- **train-f0** = `notebook381a28a764%20(2).ipynb` (Fold-0 training; also builds the split + audit)
+- **train-f1..f4** = `ms3seg-ventimorph-relnet-v2-7-fold{1..4}-training (1).ipynb`
+- **eval-f0** = `ms3seg-ventimorph-relnet-v2-7-fold0-validation-eva.ipynb`
+
+---
+
+## 1. Dataset / setup facts
+
+| Paper statement | Source | Output file | Value |
+|---|---|---|---|
+| Cohort size = 100 patients | train-f*, manifest cell (14) | `patient_manifest.csv` | `Patients: 100` |
+| 4 classes + voxel class distribution | train-f*, audit cell (15) | `class_distribution.csv` | bg 99.311 % / vent 0.402 % / nWMH 0.116 % / abWMH 0.171 % |
+| Mask overlap check | train-f*, audit cell (15) | `integrity_audit.csv` | `{vent_nwmh: 2, vent_abwmh: 9, nwmh_abwmh: 227, triple: 0}` |
+| Shapes / affines consistent | train-f*, audit cell (15) | stdout + `integrity_audit.csv` | `All shapes match: True`, `All affines match: True` |
+| 80 development / 20 locked test | train-f0, split cell (18) | `patient_level_5fold_split.csv` | `Development: 80  Locked test: 20` |
+| 5 folds, 64 train / 16 val each | train-f1..f4, split-load cell (18) | same | `Fold k has 64 training and 16 validation patients` |
+| Fold-0 validation patient IDs | eval-f0, cell 5 | `evaluation_metadata.json` | `001,007,017,018,023,034,048,053,062,064,070,072,086,089,095,099` |
+| Trainable parameters ≈ 5.97 M | train-f*, cell 26 | stdout | `Parameters: 5974441` |
+| GPU = Tesla T4 (sm_75) | train-f*, cell 10 | stdout | `Compatible GPU: Tesla T4; capability=sm_75` |
+
+## 2. Training — checkpoint that produces the paper's evaluation
+
+| Paper statement | Source | Output file | Value |
+|---|---|---|---|
+| Selected checkpoint = Fold-0 best *balanced*, epoch 47 | train-f0, cells 40/44/46 | `.../v27_fresh_stable_fold0/best_model.pt`, `history.csv` | `epoch 47`, val mean-FG Dice 0.7637 |
+| This is the `best_model.pt` loaded for evaluation | eval-f0, cell 9 | stdout | `Checkpoint epoch: 47`, `Recorded mean foreground Dice: 0.7637`, `5974441` params, all frozen |
+
+## 3. Fold-0 validation — 3-D patient-level metrics (PRIMARY paper results)
+
+All from **eval-f0**. Per-patient rows → `fold0_validation_patient_metrics.csv`; aggregates below.
+
+### 3.1 Headline (`fold0_validation_overall_summary.csv`, eval-f0 cell 13)
+
+| Metric | Value |
+|---|---|
+| mean patient foreground Dice | 0.7552 |
+| std patient foreground Dice | 0.0464 |
+| mean ventricle Dice | 0.8516 |
+| mean normal-WMH Dice | 0.6361 |
+| mean abnormal-WMH Dice | 0.7779 |
+| mean abnormal-WMH lesion F1 | 0.6920 |
+| mean normal-WMH lesion F1 | 0.4731 |
+| mean periventricular abnormal-WMH FP rate | 0.2576 |
+
+### 3.2 Per-class (`fold0_validation_class_summary.csv`, eval-f0 cell 13), mean ± std (n = 16)
+
+| Class | Dice | IoU | Precision | Recall | Specificity | HD95 (mm) | ASSD (mm) |
+|---|---|---|---|---|---|---|---|
+| Ventricle | 0.852 ± 0.025 | 0.742 ± 0.037 | 0.839 ± 0.045 | 0.871 ± 0.067 | 0.9993 | 3.53 ± 1.72 | 0.58 ± 0.18 |
+| Normal-WMH | 0.636 ± 0.079 | 0.471 ± 0.082 | 0.595 ± 0.108 | 0.700 ± 0.098 | 0.9995 | 9.84 ± 3.98 | 1.83 ± 0.84 |
+| Abnormal-WMH | 0.778 ± 0.089 | 0.644 ± 0.112 | 0.761 ± 0.104 | 0.820 ± 0.127 | 0.9996 | 11.47 ± 10.88 | 1.92 ± 1.79 |
+
+### 3.3 Voxel confusion matrix
+
+`fold0_validation_confusion_matrix.csv` (eval-f0 cell 12); normalized version in
+`figures/fold0_validation_confusion_matrix.png` (cell 14).
+
+### 3.4 Figures (eval-f0)
+
+| Figure | File | Cell |
+|---|---|---|
+| Patient-level Dice box plot | `figures/fold0_validation_dice_boxplot.png` | 14 |
+| Normalized voxel confusion matrix | `figures/fold0_validation_confusion_matrix.png` | 14 |
+| Best / median / worst qualitative panels | `figures/{best,median,worst}_case_<pid>_slice_<z>.png` | 15 |
+| Best / median / worst patient IDs | stdout | 15 → `034` / `099` / `017` |
+
+## 4. Cross-validation table (slice-level validation Dice, per training notebook)
+
+From each `history.csv`, row of the best *balanced* epoch (train-f*, cells 40/42/44).
+**Note:** these are training-loop (confusion-matrix, slice-level) Dice, not the 3-D
+patient-level Dice of §3. Use §3 numbers as the paper's primary metric; use these only for the
+per-fold learning-stability discussion.
+
+| Fold | best epoch | Ventricle | nWMH | abWMH | mean FG | balanced | pilot gate |
+|---|---|---|---|---|---|---|---|
+| 0 | 47 | 0.8561 | 0.6409 | 0.7941 | 0.7637 | 0.7411 | pass |
+| 1 | 19 | 0.8366 | 0.6269 | 0.7539 | 0.7391 | 0.7176 | pass (early-stopped ep 31) |
+| 2 | 58 | 0.8503 | 0.6405 | 0.7444 | 0.7451 | 0.7236 | pass (1 rollback) |
+| 3 | 33 | 0.8551 | 0.6427 | 0.7899 | 0.7626 | 0.7404 | **fail** (grad spike) — full run still completed, 1 rollback |
+| 4 | 43 | 0.8510 | 0.6163 | 0.7678 | 0.7451 | 0.7208 | **fail** (grad spike / 17 skipped batches) — full run still completed, 1 rollback |
+
+CV mean ± std (slice-level, best-epoch, n = 5): Ventricle 0.850 ± 0.008, nWMH 0.633 ± 0.011,
+abWMH 0.770 ± 0.022, mean-FG 0.751 ± 0.011. (Recompute with `scripts/summarize_results.py`
+inputs or directly from the five `history.csv` files if you need more decimals.)
+
+## 5. Not evaluated
+
+| Item | Status |
+|---|---|
+| Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
+| Ablations A0–A7 | defined (train-f* cell 48) but `RUN_ABLATIONS = False` — no results produced |
+
+## 6. Reproduce the tables
+
+```bash
+# after downloading MS3SEG_V27_FOLD0_VALIDATION_RESULTS.zip and unzipping it
+python scripts/summarize_results.py --results-dir MS3SEG_V27_FOLD0_VALIDATION --out paper_tables.md
+```

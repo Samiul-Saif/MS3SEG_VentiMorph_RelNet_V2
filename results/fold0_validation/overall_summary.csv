@@ -1,0 +1,9 @@
+metric,value
+mean_patient_foreground_dice,0.755216
+std_patient_foreground_dice,0.046382
+mean_ventricle_dice,0.851588
+mean_normal_wmh_dice,0.636120
+mean_abnormal_wmh_dice,0.777938
+mean_abnormal_lesion_f1,0.691982
+mean_normal_lesion_f1,0.473111
+mean_periventricular_abnormal_fp_rate,0.257579

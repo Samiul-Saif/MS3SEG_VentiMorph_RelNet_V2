@@ -1,0 +1,41 @@
+# checkpoints / model weights
+*.pt
+*.pth
+*.ckpt
+
+# data (patient MRI — never commit)
+*.nii
+*.nii.gz
+data/
+MS_100_patient_preprocessed/
+MS_100_patient_masks/
+
+# run outputs (raw Kaggle dumps) -- but keep the curated results/ folder (see !results/ below)
+MS3SEG_V27_*/
+MS3SEG_V2_*/
+ventimorph_v27_*/
+*_TRANSFER.zip
+*_RESULTS.zip
+history.csv
+*_patient_metrics.csv
+*_lesion_metrics.csv
+*_class_summary.csv
+*_overall_summary.csv
+*_confusion_matrix.csv
+integrity_audit.csv
+patient_manifest.csv
+class_distribution.csv
+figures/
+nifti_predictions/
+
+# curated, committed results extracted from notebook outputs
+!results/
+!results/**
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store

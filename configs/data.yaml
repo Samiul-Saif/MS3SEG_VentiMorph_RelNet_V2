@@ -1,0 +1,56 @@
+# MS3SEG dataset — layout, preprocessing and split (documentation of the frozen setup)
+
+cohort:
+  name: MS3SEG
+  patients: 100
+  patient_ids: "001".."100"    # three-digit, zero-padded
+  provided_as: Kaggle private dataset "MS3SEG" (imaging not in this git repo)
+
+expected_layout:
+  MS_100_patient_preprocessed/<NNN>/:
+    - <NNN>_FLAIR.nii(.gz)
+    - <NNN>_T1WI_reg.nii(.gz)      # registered to FLAIR
+    - <NNN>_T2WI_reg.nii(.gz)      # registered to FLAIR
+  MS_100_patient_masks/:
+    Vent_Masks/<NNN>/<NNN>_Vent_Mask.nii(.gz)
+    nWMH_Masks/<NNN>/<NNN>_nWMH_Mask.nii(.gz)
+    abWMH_Masks/<NNN>/<NNN>_abWMH_Mask.nii(.gz)
+
+image_properties:
+  in_plane_matrix: [256, 256]
+  in_plane_spacing_mm: ~0.898
+  slice_spacing_mm: 6.2 .. 7.2   # anisotropic -> 2.5D axial modelling
+  mask_encoding_accepted: ["{0,1}", "{0,255}", "any positive -> 1"]
+  integrity_checks: [matching shapes, matching affines (atol 1e-3), two-level masks]
+
+label_map:              # composed tri-mask, later class wins on overlap
+  0: background
+  1: ventricle          # target[vent>0] = 1
+  2: normal_WMH         # target[nwmh>0] = 2
+  3: abnormal_WMH       # target[abwmh>0] = 3
+
+class_voxel_distribution:   # over all 100 patients (training-notebook audit cell)
+  background:   {voxels: 129192863, percent: 99.311}
+  ventricle:    {voxels: 523012,    percent: 0.402}
+  normal_WMH:   {voxels: 151022,    percent: 0.116}
+  abnormal_WMH: {voxels: 222063,    percent: 0.171}
+  mask_overlap_totals: {vent_nwmh: 2, vent_abwmh: 9, nwmh_abwmh: 227, triple: 0}
+
+preprocessing_at_load:
+  intensity_normalisation: "clip to [0.5, 99.5] percentile of non-zero voxels, then z-score by non-zero mean/std"
+  non_finite: set to 0
+  input_construction: "per axial slice, stack slices [z-1, z, z+1] for FLAIR, T1_reg, T2_reg -> 9 channels"
+  relation_bands: "per-slice EDT from ventricle mask: <=3mm -> 0, <=10mm -> 1, else 2 (used by confusion loss and prototype bank)"
+
+split:
+  file: patient_level_5fold_split.csv        # columns: patient_id, fold, role(train|val|test)
+  created_by: "Fold-0 training notebook (notebook381a28a764), reused verbatim by folds 1-4 and eval"
+  method:
+    - "burden_bin = quartile of abWMH volume (ml), rank(method='first')"
+    - "train_test_split(test_size=0.20, random_state=42, stratify=burden_bin) -> 80 development / 20 locked test"
+    - "StratifiedKFold(n_splits=5, shuffle=True, random_state=42) on the 80 development patients"
+  per_fold: {train: 64, val: 16}
+  locked_test: 20        # role='test', fold=-1; NEVER evaluated in this repository
+  fold0_val_ids: ["001","007","017","018","023","034","048","053","062","064","070","072","086","089","095","099"]
+
+reproduce_split_standalone: "python scripts/make_5fold_split.py --audit integrity_audit.csv --out patient_level_5fold_split.csv"

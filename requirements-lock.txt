@@ -1,0 +1,20 @@
+# Approximate lock of the Kaggle GPU image used for the paper (2025).
+#
+# The notebooks did NOT pin versions, so this file is reconstructed from the Kaggle GPU
+# image contents at run time and from run-time evidence in the notebook outputs
+# (e.g. torch.cuda.get_arch_list() -> ['sm_70','sm_75','sm_80','sm_86','sm_90','sm_100','sm_120'],
+# which corresponds to a PyTorch 2.6.x CUDA 12.x build; a MatplotlibDeprecationWarning about
+# boxplot 'labels' -> 'tick_labels' introduced in Matplotlib 3.9).
+#
+# Treat the pins below as "known-good, approximate". Run scripts/print_env.py on your own
+# Kaggle session to produce an authoritative lock and commit that as requirements-lock.txt.
+
+python==3.11
+torch==2.6.0
+torchvision==0.21.0
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.15.1
+scikit-learn==1.2.2
+nibabel==5.3.2
+matplotlib==3.9.2

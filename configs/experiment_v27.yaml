@@ -1,0 +1,111 @@
+# MS3SEG VentiMorph-RelNet V2.7 — frozen training configuration
+#
+# This mirrors the `ExperimentConfig` dataclass and the CompositeLoss / model constants that are
+# defined inline in every training notebook. It is DOCUMENTATION of the configuration used for the
+# paper, not a file that the notebooks read. Values here match the notebook `full_config`.
+
+seed: 42
+deterministic_cudnn: false      # torch.backends.cudnn.deterministic
+benchmark_cudnn: true           # torch.backends.cudnn.benchmark
+
+model:
+  name: VentiMorphRelNet
+  base: 24
+  num_classes: 4                # 0 background, 1 ventricle, 2 normal_WMH, 3 abnormal_WMH
+  emb_dim: 32
+  use_multimodal: true          # FLAIR + registered T1 + registered T2
+  use_context: true             # AdaptiveAnisotropicContext dilated bottleneck (dilations 1,2,4,6)
+  guidance_mode: directional    # one of: none | vent | distance | directional
+  use_prototypes: true          # RelationConditionedPrototypeBank (2 x 3 x emb_dim, temperature 0.1)
+  use_uncertainty: true         # evidential Dirichlet head; predictive uncertainty = 4 / sum(alpha)
+  trainable_parameters: 5974441
+  input_channels: 9             # 2.5D: +/-1 neighbour triplet per modality
+  input_size: [256, 256]
+
+optim:
+  optimizer: AdamW
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.99]
+  grad_clip_norm: 2.0
+  amp: true                     # torch.amp autocast + GradScaler on CUDA
+
+schedule:
+  scheduler: ReduceLROnPlateau
+  mode: max                     # monitors the validation "balanced" score
+  plateau_factor: 0.5
+  plateau_patience: 3
+  min_lr: 1.0e-6
+  threshold: 1.0e-4
+  threshold_mode: abs
+
+training:
+  pilot_epochs: 10              # stability pilot, runs first, same run is then resumed
+  max_epochs: 60                # full stage (auto-resumes from epoch 11)
+  early_stopping_patience: 12
+  min_improvement: 1.0e-4
+  batch_size: 4
+  num_workers: 0                # deliberate: avoids Kaggle multiprocessing-worker stalls
+  pin_memory: false
+  persistent_workers: false
+  auto_resume: true             # from last_checkpoint.pt, warm-start fallback from best_model.pt
+  transfer_zip_every_epochs: 5
+
+stability_guards:
+  collapse_margin: 0.05
+  collapse_patience: 2
+  gradient_alarm_threshold: 300.0
+  gradient_alarm_patience: 2
+  rollback_lr_factor: 0.5
+  max_rollbacks: 2
+  non_finite_batch: skip        # zero grads, scaler.update(), continue
+
+checkpoint_selection:
+  # per-epoch validation Dice for classes [vent, nwmh, abwmh]
+  weighted_score: 0.20*vent + 0.40*nwmh + 0.40*abwmh
+  macro_score: mean(vent, nwmh, abwmh)
+  balanced_score: macro - 0.25*std(vent, nwmh, abwmh)   # PRIMARY -> best_model.pt
+  also_saved:
+    best_weighted_model.pt: max weighted_score
+    best_nwmh_model.pt: max nwmh Dice
+    last_checkpoint.pt: every epoch (resumable: model+optim+sched+scaler+RNG)
+
+sampling:
+  # WeightedRandomSampler over 2.5D slices, generator seeded with 42
+  weights:
+    small_wmh: 2.5             # 0 < wmh pixels <= 64
+    wmh: 2.0                   # wmh pixels > 64
+    ventricle_only: 1.25
+    background: 1.0
+
+augmentation:               # training only
+  hflip_p: 0.5
+  affine_p: 0.60
+  affine_degrees: [-8, 8]
+  affine_translate: [0.02, 0.02]
+  affine_scale: [0.97, 1.03]
+  per_modality_gain: [0.95, 1.05]
+  per_modality_bias: [-0.05, 0.05]
+  gaussian_noise_p: 0.15
+  gaussian_noise_std: 0.015
+
+loss:
+  # total = CE + Dice + w_nwmh_tversky*FT(nwmh) + 0.50*FT(abwmh) + 0.30*ventricle
+  #         + 0.20*boundary + w_confusion*confusion + 0.10*prototype + 0.05*evidential
+  cross_entropy:
+    class_weights: inverse_sqrt_frequency_normalised   # computed per fold from training patients
+  soft_dice: foreground classes 1..3
+  focal_tversky: {alpha: 0.70, beta: 0.30, gamma: 0.75}
+  focal_tversky_nwmh_weight_ramp: {start_epoch: 1, end_epoch: 10, max: 0.25}
+  focal_tversky_abwmh_weight: 0.50
+  ventricle_deep_supervision_weight: 0.30   # BCEWithLogits + Dice (final) + 0.5*BCEWithLogits (mid)
+  boundary_l1_weight: 0.20                  # soft dilation-erosion boundary, classes 2 and 3
+  confusion_penalty_weight_ramp: {start_epoch: 11, end_epoch: 20, max: 0.05}
+  confusion_periventricular_weights: {band0_<=3mm: 1.50, band1_<=10mm: 1.20, band2: 1.00}
+  prototype_weight: 0.10                    # InfoNCE, temperature 0.1, max 4096 samples/batch
+  evidential_weight: 0.05                   # NLL + 0.01*anneal*Dirichlet-KL, anneal over 20 epochs
+
+inference:
+  decision_rule: softmax_argmax
+  postprocessing: none
+  batch_size: 4
