@@ -1,0 +1,6 @@
+Method,Input,Ventricle,nWMH,abWMH,Mean FG,Parameters
+U-Net [8],FLAIR,0.8897,0.6452,0.6686,0.7345,n/r
+U-Net++ [8],FLAIR,0.8934,0.6275,0.6634,0.7281,n/r
+UNETR [8],FLAIR,0.824,0.5245,0.5551,0.6345,n/r
+Swin UNETR [8],FLAIR,0.8632,0.5591,0.5886,0.6703,n/r
+VentiMorph-RelNet (ours),"FLAIR+T1+T2, 2.5D",0.849,0.6325,0.76679,0.7494,5.97 M

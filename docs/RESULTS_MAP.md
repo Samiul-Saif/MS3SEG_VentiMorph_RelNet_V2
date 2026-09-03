@@ -97,6 +97,24 @@ inputs or directly from the five `history.csv` files if you need more decimals.)
 | Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
 | Ablations A0–A7 | defined (train-f* cell 48) but `RUN_ABLATIONS = False` — no results produced |
 
+## 5b. Table 7 / Table 8 — five-fold aggregation
+
+`notebooks/five_fold_aggregation.ipynb` takes the five per-fold patient-level class means and
+computes the paper's aggregate rows.
+
+| Paper cell | Source | Value |
+|---|---|---|
+| Table 7, "VentiMorph-RelNet (ours)" — Ventricle / nWMH / abWMH / Mean FG | mean of 5 fold means | 0.8490 / 0.6325 / 0.76679 / 0.7494 (paper: 0.8489 / 0.6325 / 0.76679 / 0.7494) |
+| Table 8, "VentiMorph-RelNet V2.7 (frozen calibrated)" | mean ± sample SD of 5 fold means | means as above; **SD computed 0.0073 / 0.0109 / 0.0182 / 0.0094 vs paper ± 0.0062 / 0.0117 / 0.0338 / 0.0138** |
+| Per-fold inputs | `results/five_fold/ventimorph_per_fold.csv` (Fold-1 = CV fold 0, cross-checked vs `results/fold0_validation/overall_summary.csv`) | |
+| Generated tables | `results/five_fold/table7_numerical_comparison.csv`, `results/five_fold/table8_five_fold_ablation.csv` | |
+
+The **means match the paper**; the **± in Table 8 is larger than the SD of the five fold means**
+(esp. abWMH). Decide whether Table 8's ± is meant to be that SD (then the per-fold abWMH digits
+need a check) or a different dispersion (e.g. pooled per-patient SD over all 80 validation
+patients) and align the manuscript text. U-Net / U-Net++ per-fold baseline numbers still need to
+be pasted into section 2 of that notebook.
+
 ## 6. Reproduce the tables
 
 ```bash

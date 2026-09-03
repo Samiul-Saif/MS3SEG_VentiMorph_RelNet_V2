@@ -1,0 +1,4 @@
+Architecture,Folds,Params (M),Ventricle,nWMH,abWMH,Mean FG,source
+Capacity-matched U-Net,5,5.946,0.9049 +/- 0.0061,0.7020 +/- 0.0082,0.7794 +/- 0.0304,0.7954 +/- 0.0099,published (no per-fold data supplied)
+Capacity-matched U-Net++,5,6.05,0.9094 +/- 0.0044,0.7101 +/- 0.0113,0.7889 +/- 0.0298,0.8028 +/- 0.0064,published (no per-fold data supplied)
+VentiMorph-RelNet V2.7 (frozen calibrated),5,5.97,0.8490 +/- 0.0073,0.6325 +/- 0.0109,0.7668 +/- 0.0182,0.7494 +/- 0.0094,computed
