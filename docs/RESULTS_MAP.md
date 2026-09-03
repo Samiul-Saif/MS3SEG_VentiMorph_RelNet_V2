@@ -90,30 +90,31 @@ CV mean ± std (slice-level, best-epoch, n = 5): Ventricle 0.850 ± 0.008, nWMH 
 abWMH 0.770 ± 0.022, mean-FG 0.751 ± 0.011. (Recompute with `scripts/summarize_results.py`
 inputs or directly from the five `history.csv` files if you need more decimals.)
 
+## 4b. Table 7 — "VentiMorph-RelNet (ours)" row
+
+`notebooks/MS3SEG_5Fold_Best_Points_Summary.ipynb` scrapes the five source notebooks' saved outputs
+and averages.
+
+| Sheet fold | Scraped from | Ventricle | nWMH | abWMH | Mean FG |
+|---|---|---|---|---|---|
+| Fold-1 | eval-f0 `overall_summary` (3-D patient-level) | 0.851588 | 0.636120 | 0.777938 | 0.755216 |
+| Fold-2 | train-f1 best-balanced epoch 19 (slice-level) | 0.836591 | 0.626910 | 0.753907 | 0.739136 |
+| Fold-3 | train-f2 best-balanced epoch 58 | 0.850324 | 0.640466 | 0.744385 | 0.745058 |
+| Fold-4 | train-f3 best-balanced epoch 33 | 0.855117 | 0.642706 | 0.789882 | 0.762568 |
+| Fold-5 | train-f4 best-balanced epoch 43 | 0.851024 | 0.616333 | 0.767844 | 0.745067 |
+| **5-fold mean** | | **0.848929** | **0.632507** | **0.766791** | **0.749409** |
+| Paper Table 7 | | 0.8489 | 0.6325 | 0.76679 | 0.7494 | ✓ |
+
+Caveat: Fold-1 is a 3-D patient-level Dice, Folds 2–5 are training-loop (slice-level) Dice at the
+selected epoch. The averages equal the paper's Table 7 row; note the metric mix in the manuscript
+or run a full 5-fold patient-level evaluation.
+
 ## 5. Not evaluated
 
 | Item | Status |
 |---|---|
 | Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
 | Ablations A0–A7 | defined (train-f* cell 48) but `RUN_ABLATIONS = False` — no results produced |
-
-## 5b. Table 7 / Table 8 — five-fold aggregation
-
-`notebooks/five_fold_aggregation.ipynb` takes the five per-fold patient-level class means and
-computes the paper's aggregate rows.
-
-| Paper cell | Source | Value |
-|---|---|---|
-| Table 7, "VentiMorph-RelNet (ours)" — Ventricle / nWMH / abWMH / Mean FG | mean of 5 fold means | 0.8490 / 0.6325 / 0.76679 / 0.7494 (paper: 0.8489 / 0.6325 / 0.76679 / 0.7494) |
-| Table 8, "VentiMorph-RelNet V2.7 (frozen calibrated)" | mean ± sample SD of 5 fold means | means as above; **SD computed 0.0073 / 0.0109 / 0.0182 / 0.0094 vs paper ± 0.0062 / 0.0117 / 0.0338 / 0.0138** |
-| Per-fold inputs | `results/five_fold/ventimorph_per_fold.csv` (Fold-1 = CV fold 0, cross-checked vs `results/fold0_validation/overall_summary.csv`) | |
-| Generated tables | `results/five_fold/table7_numerical_comparison.csv`, `results/five_fold/table8_five_fold_ablation.csv` | |
-
-The **means match the paper**; the **± in Table 8 is larger than the SD of the five fold means**
-(esp. abWMH). Decide whether Table 8's ± is meant to be that SD (then the per-fold abWMH digits
-need a check) or a different dispersion (e.g. pooled per-patient SD over all 80 validation
-patients) and align the manuscript text. U-Net / U-Net++ per-fold baseline numbers still need to
-be pasted into section 2 of that notebook.
 
 ## 6. Reproduce the tables
 

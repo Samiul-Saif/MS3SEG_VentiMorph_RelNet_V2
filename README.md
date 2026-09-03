@@ -202,13 +202,13 @@ epoch):
 > patient-level ones from the evaluation notebook. Folds 3 and 4 did not pass the *pilot* stability
 > gate (transient gradient spikes) but completed full training; see their `history.csv`.
 
-**Table 7 / Table 8 (five-fold aggregate).**
-[`notebooks/five_fold_aggregation.ipynb`](notebooks/five_fold_aggregation.ipynb) takes the five
-per-fold patient-level class means and computes the paper's "VentiMorph-RelNet (ours)" /
-"frozen calibrated" rows: Ventricle **0.8490**, nWMH **0.6325**, abWMH **0.76679**, Mean FG
-**0.7494** — matching the paper. (Note: the sample SD of the five fold means is smaller than the
-± printed in Table 8; the notebook's *Notes* cell explains the options. Paste your U-Net /
-U-Net++ per-fold numbers into section 2 of that notebook to fill the baseline rows.)
+**Table 7 ("VentiMorph-RelNet (ours)" row).**
+[`notebooks/MS3SEG_5Fold_Best_Points_Summary.ipynb`](notebooks/MS3SEG_5Fold_Best_Points_Summary.ipynb)
+scrapes the selected per-fold Dice straight out of the five source notebooks' saved outputs
+(Fold-1 = the 3-D `fold0-validation-eva` summary; Folds 2-5 = each training notebook's best
+balanced-score epoch), then averages → Ventricle **0.8489**, nWMH **0.6325**, abWMH **0.76679**,
+Mean FG **0.7494**. Runs offline in seconds. Its *Notes* explain the Fold-1-vs-Folds-2-5 metric
+mix.
 
 **If your paper reports a number not in the table above, add a row to `docs/RESULTS_MAP.md` pointing
 at the notebook cell / CSV that produced it.**
@@ -231,12 +231,11 @@ at the notebook cell / CSV that produced it.**
 │   └── RESULTS_MAP.md            # every paper result → notebook cell → output file
 ├── notebooks/
 │   ├── README.md
-│   └── five_fold_aggregation.ipynb   # per-fold results -> Table 7 & Table 8 (mean ± sd)
+│   └── MS3SEG_5Fold_Best_Points_Summary.ipynb  # scrapes 5 source notebooks → Table 7 row
 ├── results/                      # numbers extracted from the committed notebook outputs
 │   ├── README.md
 │   ├── history/fold{0..4}_history.csv
-│   ├── fold0_validation/{patient_dice,overall_summary,class_summary}.csv
-│   └── five_fold/{ventimorph_per_fold,table7_numerical_comparison,table8_five_fold_ablation}.csv
+│   └── fold0_validation/{patient_dice,overall_summary,class_summary}.csv
 ├── scripts/
 │   ├── print_env.py              # run first on Kaggle to capture exact versions
 │   ├── make_5fold_split.py       # standalone reproduction of the patient-level split

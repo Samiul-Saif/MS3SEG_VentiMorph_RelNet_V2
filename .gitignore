@@ -32,6 +32,9 @@ nifti_predictions/
 !results/
 !results/**
 
+# csv exported by notebooks/five_fold_best_points_summary.ipynb when run
+notebooks/*.csv
+
 # python
 __pycache__/
 *.py[cod]

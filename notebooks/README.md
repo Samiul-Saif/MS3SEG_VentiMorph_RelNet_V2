@@ -1,24 +1,28 @@
 # notebooks/
 
-Analysis notebooks (post-processing only — no training / no GPU needed).
+## `MS3SEG_5Fold_Best_Points_Summary.ipynb`
 
-## `five_fold_aggregation.ipynb`
+Builds the 5-fold validation table for the paper's **Table 7** ("VentiMorph-RelNet (ours)" row)
+by **reading the numbers out of the five source `.ipynb` files' saved cell outputs** — nothing
+is typed in. It then sums, averages, picks the best fold per metric, and cross-checks against
+the published Table 7.
 
-Reproduces the **VentiMorph-RelNet (ours)** row of **Table 7** and the
-**VentiMorph-RelNet V2.7 (frozen calibrated)** row of **Table 8** from the per-fold
-patient-level validation Dice.
+| Sheet fold | Source notebook | Value scraped |
+|---|---|---|
+| Fold-1 | `ms3seg-…-fold0-validation-eva.ipynb` | patient-level 3-D validation summary (`overall_summary`) |
+| Fold-2 | `ms3seg-…-fold1-training (1).ipynb` | validation Dice at the best balanced-score epoch |
+| Fold-3 | `ms3seg-…-fold2-training (1).ipynb` | " |
+| Fold-4 | `ms3seg-…-fold3-training (1).ipynb` | " |
+| Fold-5 | `ms3seg-…-fold4-training (1).ipynb` | " |
 
-- **Input:** the five per-fold class means (Ventricle / nWMH / abWMH), entered in section 1
-  (VentiMorph, already filled from the per-fold evaluation) and section 2 (U-Net / U-Net++
-  baselines — paste yours; falls back to the published Table-8 values if left blank).
-  Fold-1 (= CV fold 0) is auto-checked against `../results/fold0_validation/overall_summary.csv`.
-- **Output:** `../results/five_fold/ventimorph_per_fold.csv`,
-  `table7_numerical_comparison.csv`, `table8_five_fold_ablation.csv`, and a cross-check of the
-  computed mean/SD against the published paper values.
-- **Result:** the class **means** reproduce the paper exactly — Ventricle ≈ 0.8490, nWMH 0.6325,
-  abWMH 0.76679, Mean FG 0.7494. The sample SD of the five fold means is *smaller* than the ±
-  printed in Table 8 (see the "Notes" cell) — confirm which dispersion definition the manuscript
-  uses.
+Result (matches the paper exactly): Ventricle **0.8489**, nWMH **0.6325**, abWMH **0.76679**,
+Mean FG **0.7494**.
 
-Run: open in Jupyter and *Run All*, or
-`pip install jupyter && jupyter nbconvert --to notebook --execute --inplace notebooks/five_fold_aggregation.ipynb`.
+- Runs offline in seconds (`pip install jupyter pandas`, Run All) — it only parses notebook JSON,
+  no data / GPU / model needed.
+- The source notebooks are found automatically (searches the repo dir and `~/Downloads`).
+- `Mean F1` is the handwritten-sheet label; it is the mean foreground Dice
+  (`mean_patient_foreground_dice` for Fold-1, `val_mean_fg_dice` for Folds 2-5). Fold-1 is a
+  3-D patient-level Dice; Folds 2-5 are the training-loop (slice-level) validation Dice at the
+  selected epoch — state this in the paper, or run a full 5-fold patient-level evaluation for
+  strict consistency.
