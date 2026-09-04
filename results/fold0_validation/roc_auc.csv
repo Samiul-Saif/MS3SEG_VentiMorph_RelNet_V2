@@ -1,0 +1,5 @@
+class,auc,positive_voxels_in_sample,voxels_in_sample
+background,,20699370,20699370
+ventricle,0.999152,80538,300000
+normal_wmh,0.996769,22482,300000
+abnormal_wmh,0.994909,38058,300000

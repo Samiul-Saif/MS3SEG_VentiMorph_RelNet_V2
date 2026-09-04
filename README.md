@@ -141,10 +141,11 @@ test never touched; not resumable mid-ablation — an interruption restarts from
      worst/median/best patients, showing which input regions drove each class's prediction.
      Model weights stay frozen; only the input's gradient is used.
 
-   **Status:** these two sections are code-complete and ready to run but have not been executed
-   yet (pending a future ~15–20 min Kaggle session) — see `docs/RESULTS_MAP.md` §5. Don't quote
-   ROC/AUC or explainability numbers in the paper until they've actually been produced by
-   running this notebook.
+   **Status: executed.** Fold-0 validation voxel-level AUC (one-vs-rest): Ventricle **0.9992**,
+   Normal-WMH **0.9968**, Abnormal-WMH **0.9949**. (Background shows `NaN` in this run due to a
+   sampling edge case at ~99% voxel prevalence — fixed in the committed code for the next run,
+   see the notebook's own note above section 19; it doesn't affect the three clinical classes.)
+   See `results/fold0_validation/roc_auc.csv` and `docs/RESULTS_MAP.md` §5 for details.
 
 ### 3.4 Regenerate the 5-fold split outside a notebook
 

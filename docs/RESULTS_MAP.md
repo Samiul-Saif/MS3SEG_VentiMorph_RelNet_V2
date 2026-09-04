@@ -73,6 +73,17 @@ All from **eval-f0**. Per-patient rows → `fold0_validation_patient_metrics.csv
 | Per-class ROC curves (voxel-level, one-vs-rest) | `figures/fold0_validation_roc_curves.png`, `fold0_validation_roc_auc.csv` | 19 (appended) |
 | Seg-Grad-CAM explainability panels (worst/median/best × ventricle/nWMH/abWMH) | `figures/gradcam_{worst,median,best}_case_<pid>_slice_<z>.png` | 20 (appended) |
 
+### 3.5 ROC / AUC (executed 2026-09-05, `results/fold0_validation/roc_auc.csv`)
+
+Voxel-level, one-vs-rest, from the 16 Fold-0 validation patients' cached softmax probabilities:
+
+| Class | AUC |
+|---|---|
+| Ventricle | 0.9992 |
+| Normal-WMH | 0.9968 |
+| Abnormal-WMH | 0.9949 |
+| Background | `NaN` — sampling edge case at ~99% voxel prevalence (fixed in the committed code for the next run; does not affect the three classes above, which are valid) |
+
 ## 4. Cross-validation table (slice-level validation Dice, per training notebook)
 
 From each `history.csv`, row of the best *balanced* epoch (train-f*, cells 40/42/44).
@@ -117,15 +128,13 @@ or run a full 5-fold patient-level evaluation.
 |---|---|
 | Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
 | Ablations A0–A7 | code exists (train-f0 cell 52) but **deliberately not run for this paper** — an 8-config study at even a reduced 12-epoch budget is ~14–15 GPU-hours, more than the time available. `RUN_ABLATIONS = False`. If run later, it uses Fold-0's train/val split only and writes `ablation_summary.csv`. |
-| ROC / AUC curves | code added (eval-f0, appended section 19), **not yet executed** — planned for a future short (~15–20 min) Kaggle session, no extra inputs beyond what the notebook already needs |
-| Explainability (Seg-Grad-CAM) | code added (eval-f0, appended section 20), **not yet executed** — same planned session as ROC above |
+| ROC / AUC curves | **executed** — see §3.5. Ventricle 0.9992, Normal-WMH 0.9968, Abnormal-WMH 0.9949 |
+| Explainability (Seg-Grad-CAM) | **executed** — 3 panels (worst/median/best patient) embedded in the committed notebook, section 20 |
 
-**For the paper:** state plainly that ROC/AUC and explainability were prepared but pending a
-Kaggle run at submission time, and that the architecture-ablation study (A0–A7) was scoped but
-not executed due to compute/time constraints — do not report numbers for any of these three
-until they have actually been run. When you do get the ~15–20 minutes, Run All on
-`ms3seg-ventimorph-relnet-v2-7-fold0-validation-eva.ipynb` produces real ROC + explainability
-output; update this table and the headline results with those numbers afterward.
+**For the paper:** ROC/AUC and Seg-Grad-CAM explainability are real, executed results (§3.5,
+notebook sections 19–20) — cite them freely. The architecture-ablation study (A0–A7) was scoped
+but not executed due to compute/time constraints; state that plainly rather than reporting
+numbers for it.
 
 ## 6. Reproduce the tables
 

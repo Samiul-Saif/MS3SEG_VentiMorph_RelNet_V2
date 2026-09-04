@@ -10,6 +10,7 @@ re-run. See [`../docs/RESULTS_MAP.md`](../docs/RESULTS_MAP.md) for the cell-by-c
 | `fold0_validation/patient_dice.csv` | per-patient foreground / ventricle / nWMH / abWMH Dice for the 16 Fold-0 validation patients | same script, parsed from the evaluation notebook's `[NN/16] …` stdout |
 | `fold0_validation/overall_summary.csv` | headline Fold-0 validation metrics | transcribed from `eval` notebook cell 13 (`fold0_validation_overall_summary.csv`) |
 | `fold0_validation/class_summary.csv` | per-class mean/std/median/min/max for Dice, IoU, precision, recall, specificity, HD95, ASSD (n = 16) | transcribed from `eval` notebook cell 13 (`fold0_validation_class_summary.csv`) |
+| `fold0_validation/roc_auc.csv` | per-class voxel-level ROC AUC, one-vs-rest (Ventricle 0.9992, Normal-WMH 0.9968, Abnormal-WMH 0.9949; background is `NaN`, a known sampling edge case at ~99% prevalence, fixed in the notebook code for the next run) | transcribed from `eval` notebook's appended section 19 (executed 2026-09-05) |
 
 ## Caveats
 
