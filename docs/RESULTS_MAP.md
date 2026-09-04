@@ -70,6 +70,8 @@ All from **eval-f0**. Per-patient rows → `fold0_validation_patient_metrics.csv
 | Normalized voxel confusion matrix | `figures/fold0_validation_confusion_matrix.png` | 14 |
 | Best / median / worst qualitative panels | `figures/{best,median,worst}_case_<pid>_slice_<z>.png` | 15 |
 | Best / median / worst patient IDs | stdout | 15 → `034` / `099` / `017` |
+| Per-class ROC curves (voxel-level, one-vs-rest) | `figures/fold0_validation_roc_curves.png`, `fold0_validation_roc_auc.csv` | 19 (appended) |
+| Seg-Grad-CAM explainability panels (worst/median/best × ventricle/nWMH/abWMH) | `figures/gradcam_{worst,median,best}_case_<pid>_slice_<z>.png` | 20 (appended) |
 
 ## 4. Cross-validation table (slice-level validation Dice, per training notebook)
 
@@ -109,12 +111,20 @@ Caveat: Fold-1 is a 3-D patient-level Dice, Folds 2–5 are training-loop (slice
 selected epoch. The averages equal the paper's Table 7 row; note the metric mix in the manuscript
 or run a full 5-fold patient-level evaluation.
 
-## 5. Not evaluated
+## 5. Not evaluated / not yet run
 
 | Item | Status |
 |---|---|
 | Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
-| Ablations A0–A7 | defined (train-f* cell 48) but `RUN_ABLATIONS = False` — no results produced |
+| Ablations A0–A7 | code enabled (train-f0 cell 52: `RUN_ABLATIONS = True`, `ABLATION_MAX_EPOCHS = 12`) but **not yet executed by anyone** — needs a Kaggle GPU session (~14–15 GPU-hours); once run it writes `ablation_summary.csv` |
+| ROC / AUC curves | code added (eval-f0, appended section 19) but **not yet executed** — needs a Kaggle GPU session with the Fold-0 checkpoint (same inputs as the rest of that notebook) |
+| Explainability (Seg-Grad-CAM) | code added (eval-f0, appended section 20) but **not yet executed** — same run as above |
+
+The three "not yet executed" rows above were added by request to close out the supervisor's
+checklist item (ROC curves, ablation runs, explainability output) but require the trained model
+and MS3SEG data, which only exist on Kaggle. Run `ms3seg-ventimorph-relnet-v2-7-fold0-validation-eva.ipynb`
+(Run All) for ROC + explainability, and `notebook381a28a764%20(2).ipynb` (Run All) for the
+ablation study, then update this table and the headline results with the real numbers.
 
 ## 6. Reproduce the tables
 

@@ -99,10 +99,21 @@ the exact dataset slug does not matter.
    `last_checkpoint.pt` (resumable), `history.csv`.
 4. Download `/kaggle/working/MS3SEG_V27_FOLD<k>_TRANSFER.zip` (also refreshed every 5 epochs and on
    every new best) and/or use **Save Version** to persist outputs.
-5. `RUN_TEST_EVALUATION` and `RUN_ABLATIONS` stay `False`.
+5. `RUN_TEST_EVALUATION` stays `False`.
 
 To **resume** an interrupted run: re-add the transfer ZIP as an input (or keep the working dir),
 Run All again — `auto_resume` picks up from `last_checkpoint.pt`.
+
+#### Ablation study (Table-7/8-style architecture ablation, A0–A7)
+
+`notebook381a28a764%20(2).ipynb` (Fold-0 training) has `RUN_ABLATIONS = True` with
+`ABLATION_MAX_EPOCHS = 12` — each of the 8 configs trains for 12 epochs (instead of the full
+60) on Fold-0's train/val split only (locked test never touched), which the cell estimates at
+**~14–15 GPU-hours total** on a T4 (8 configs × 12 epochs × ~9 min/epoch). That's most of a
+week's free Kaggle GPU quota, so budget accordingly, or run it over a few sessions (it iterates
+config-by-config and writes `ablation_summary.csv` at the end — it is not resumable
+mid-ablation, so if a session is interrupted you restart from A0). Raise `ABLATION_MAX_EPOCHS`
+for a longer, stricter study, or set `RUN_ABLATIONS = False` to skip it.
 
 ### 3.3 Evaluate (paper numbers)
 
@@ -116,8 +127,17 @@ Run All again — `auto_resume` picks up from `last_checkpoint.pt`.
    - `fold0_validation_class_summary.csv` – mean/std/median/min/max per class per metric
    - `fold0_validation_overall_summary.csv` – headline numbers
    - `fold0_validation_confusion_matrix.csv` – 4×4 voxel confusion
-   - `figures/` – Dice box plot, normalized confusion matrix, best/median/worst qualitative panels
+   - `figures/` – Dice box plot, normalized confusion matrix, best/median/worst qualitative
+     panels, per-class ROC curves, and Seg-Grad-CAM explainability panels
+   - `fold0_validation_roc_auc.csv` – per-class voxel-level AUC
    - `evaluation_metadata.json` – checkpoint, split, decision rule, lesion-matching settings
+
+   The notebook also computes, in sections 19–20 (no extra Kaggle inputs needed):
+   - **ROC / AUC** — per-class (ventricle/nWMH/abWMH/background) voxel-level, one-vs-rest,
+     from the already-cached softmax probabilities.
+   - **Explainability (Seg-Grad-CAM)** — gradient-based class-activation maps for the
+     worst/median/best patients, showing which input regions drove each class's prediction.
+     Model weights stay frozen; only the input's gradient is used.
 
 ### 3.4 Regenerate the 5-fold split outside a notebook
 
