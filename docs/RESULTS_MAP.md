@@ -116,15 +116,16 @@ or run a full 5-fold patient-level evaluation.
 | Item | Status |
 |---|---|
 | Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
-| Ablations A0–A7 | code enabled (train-f0 cell 52: `RUN_ABLATIONS = True`, `ABLATION_MAX_EPOCHS = 12`) but **not yet executed by anyone** — needs a Kaggle GPU session (~14–15 GPU-hours); once run it writes `ablation_summary.csv` |
-| ROC / AUC curves | code added (eval-f0, appended section 19) but **not yet executed** — needs a Kaggle GPU session with the Fold-0 checkpoint (same inputs as the rest of that notebook) |
-| Explainability (Seg-Grad-CAM) | code added (eval-f0, appended section 20) but **not yet executed** — same run as above |
+| Ablations A0–A7 | code exists (train-f0 cell 52) but **deliberately not run for this paper** — an 8-config study at even a reduced 12-epoch budget is ~14–15 GPU-hours, more than the time available. `RUN_ABLATIONS = False`. If run later, it uses Fold-0's train/val split only and writes `ablation_summary.csv`. |
+| ROC / AUC curves | code added (eval-f0, appended section 19), **not yet executed** — planned for a future short (~15–20 min) Kaggle session, no extra inputs beyond what the notebook already needs |
+| Explainability (Seg-Grad-CAM) | code added (eval-f0, appended section 20), **not yet executed** — same planned session as ROC above |
 
-The three "not yet executed" rows above were added by request to close out the supervisor's
-checklist item (ROC curves, ablation runs, explainability output) but require the trained model
-and MS3SEG data, which only exist on Kaggle. Run `ms3seg-ventimorph-relnet-v2-7-fold0-validation-eva.ipynb`
-(Run All) for ROC + explainability, and `notebook381a28a764%20(2).ipynb` (Run All) for the
-ablation study, then update this table and the headline results with the real numbers.
+**For the paper:** state plainly that ROC/AUC and explainability were prepared but pending a
+Kaggle run at submission time, and that the architecture-ablation study (A0–A7) was scoped but
+not executed due to compute/time constraints — do not report numbers for any of these three
+until they have actually been run. When you do get the ~15–20 minutes, Run All on
+`ms3seg-ventimorph-relnet-v2-7-fold0-validation-eva.ipynb` produces real ROC + explainability
+output; update this table and the headline results with those numbers afterward.
 
 ## 6. Reproduce the tables
 

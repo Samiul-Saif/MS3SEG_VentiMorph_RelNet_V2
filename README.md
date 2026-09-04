@@ -104,16 +104,18 @@ the exact dataset slug does not matter.
 To **resume** an interrupted run: re-add the transfer ZIP as an input (or keep the working dir),
 Run All again — `auto_resume` picks up from `last_checkpoint.pt`.
 
-#### Ablation study (Table-7/8-style architecture ablation, A0–A7)
+#### Ablation study (Table-7/8-style architecture ablation, A0–A7) — not run for this paper
 
-`notebook381a28a764%20(2).ipynb` (Fold-0 training) has `RUN_ABLATIONS = True` with
-`ABLATION_MAX_EPOCHS = 12` — each of the 8 configs trains for 12 epochs (instead of the full
-60) on Fold-0's train/val split only (locked test never touched), which the cell estimates at
-**~14–15 GPU-hours total** on a T4 (8 configs × 12 epochs × ~9 min/epoch). That's most of a
-week's free Kaggle GPU quota, so budget accordingly, or run it over a few sessions (it iterates
-config-by-config and writes `ablation_summary.csv` at the end — it is not resumable
-mid-ablation, so if a session is interrupted you restart from A0). Raise `ABLATION_MAX_EPOCHS`
-for a longer, stricter study, or set `RUN_ABLATIONS = False` to skip it.
+`notebook381a28a764%20(2).ipynb` (Fold-0 training) contains a ready-to-run ablation cell
+(`ABLATIONS`, 8 configs) but ships with **`RUN_ABLATIONS = False`**: even at a reduced
+`ABLATION_MAX_EPOCHS = 12` (instead of the full 60), the 8-config study costs an estimated
+**~14–15 GPU-hours on a T4** (8 configs × 12 epochs × ~9 min/epoch) — more time than was
+available, so it was deliberately not executed for this paper. State this plainly in the paper
+rather than reporting ablation numbers that were never produced.
+
+To run it later: set `RUN_ABLATIONS = True`, Run All (Fold-0's train/val split only, locked
+test never touched; not resumable mid-ablation — an interruption restarts from A0), raise
+`ABLATION_MAX_EPOCHS` for a stricter study if you have more GPU-hours to spend.
 
 ### 3.3 Evaluate (paper numbers)
 
@@ -138,6 +140,11 @@ for a longer, stricter study, or set `RUN_ABLATIONS = False` to skip it.
    - **Explainability (Seg-Grad-CAM)** — gradient-based class-activation maps for the
      worst/median/best patients, showing which input regions drove each class's prediction.
      Model weights stay frozen; only the input's gradient is used.
+
+   **Status:** these two sections are code-complete and ready to run but have not been executed
+   yet (pending a future ~15–20 min Kaggle session) — see `docs/RESULTS_MAP.md` §5. Don't quote
+   ROC/AUC or explainability numbers in the paper until they've actually been produced by
+   running this notebook.
 
 ### 3.4 Regenerate the 5-fold split outside a notebook
 
