@@ -1,19 +1,10 @@
-# MS3SEG VentiMorph-RelNet V2.7 — minimum-compatible dependencies
-#
-# The notebooks were run on the Kaggle GPU image, which already ships every package below.
-# These floors are what is needed to run the code OUTSIDE Kaggle. Install a CUDA-enabled
-# PyTorch build that matches your GPU/driver (see https://pytorch.org).
-#
-# For the EXACT versions of a given run, execute scripts/print_env.py and record its output.
-
-torch>=2.4          # uses torch.amp.autocast("cuda") / torch.amp.GradScaler("cuda") API
-torchvision>=0.19   # RandomAffine.get_params, functional.affine, InterpolationMode
-numpy>=1.26,<2.3
-pandas>=2.0
-scipy>=1.11         # ndimage (distance transforms, labelling, erosion), optimize.linear_sum_assignment
-scikit-learn>=1.2   # train_test_split, StratifiedKFold
-nibabel>=5.0        # NIfTI I/O
-matplotlib>=3.7     # figures
-
-# Only needed to open / execute the notebooks locally:
-jupyter>=1.0
+torch>=2.1
+torchvision>=0.16
+monai>=1.3.0
+numpy
+pandas
+scipy
+scikit-learn
+nibabel
+tqdm
+matplotlib
