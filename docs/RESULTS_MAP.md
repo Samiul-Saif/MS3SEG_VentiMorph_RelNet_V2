@@ -127,7 +127,7 @@ or run a full 5-fold patient-level evaluation.
 | Item | Status |
 |---|---|
 | Locked 20-patient test set | **never run** — `RUN_LOCKED_TEST = False` (eval-f0 cell 12), `RUN_TEST_EVALUATION = False` (train-f* cell 47) |
-| Ablations A0–A7 | code exists (train-f0 cell 52) but **deliberately not run for this paper** — an 8-config study at even a reduced 12-epoch budget is ~14–15 GPU-hours, more than the time available. `RUN_ABLATIONS = False`. If run later, it uses Fold-0's train/val split only and writes `ablation_summary.csv`. |
+| Ablations A0–A7 | code exists (train-f0 cell 52) but **deliberately not run for this paper** — an 8-config study at even a reduced 12-epoch budget is ~14–15 GPU-hours, more than the time available. `RUN_ABLATIONS = False`. See [`ABLATION_STUDY.md`](ABLATION_STUDY.md) for the full design (what each of the 8 configs isolates), a result-table template, and the exact plan to run it. |
 | ROC / AUC curves | **executed** — see §3.5. Ventricle 0.9992, Normal-WMH 0.9968, Abnormal-WMH 0.9949 |
 | Explainability (Seg-Grad-CAM) | **executed** — 3 panels (worst/median/best patient) embedded in the committed notebook, section 20 |
 
